@@ -1,0 +1,19 @@
+Architecture Design Decisions
+-------------------------------
+Three message passing techniques were adopted:
+- REST APIs
+- Message Queues (Kafka)
+- gRPC
+
+The frontend client uses REST APIs to enable integration with the various HTTP routes. 
+REST is used because it is the most straightforward and easy form of message passing that does not introduce unnecessary complexity into our solution, and it gives a relatively high thorughput in API performance.
+
+For location data from the mobile devices gRPC is chosen as the mode of message passing since volume of data is large. The choice is because gRPC provides better perfomance and reduces overall payload sizes and connection overhead.Since location will be heavily used for tracking the user coordinates , this portion need to be in efficiently structure as it might get a lot of incoming data at any instance of time.
+This will aid in ensuring that our solution can handle the large volume of location data that will sent from numerous mobile devices.
+One more reason for chosing gRPC is because of strict type enforcement, as location is the most crucial piece . Message pass into the architecture is required to be checked and ensure it doesn’t break or give unexpected outcome. gRPC using protobuf able enforce strict type of data type pass into Udaconnect system.
+Efficiency and Type enforcement are main reason.
+
+
+The location ingester service utilizes a message queue (Kafka) to handle the ingested location data. 
+This will help to achieve improved performance, improved reliability (without loss of ingested data), and also enable decoupling of our systems. Using the message queue in conjunction with gRPC for the ingestion of location data from the mobile device gives multi-dimensional advantages due to the benefits derivable from the two message passing techniques. 
+The decision to use Kafka over other messaging queues like RabbitMQ is to ensure that we utilize a durable distributed queue that can handle large volumes of data.

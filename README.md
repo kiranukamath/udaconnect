@@ -76,12 +76,47 @@ Type `exit` to exit the virtual OS and you will find yourself back in your compu
 Afterwards, you can test that `kubectl` works by running a command like `kubectl describe services`. It should not return any errors.
 
 ### Steps
-1. `kubectl apply -f deployment/db-configmap.yaml` - Set up environment variables for the pods
-2. `kubectl apply -f deployment/db-secret.yaml` - Set up secrets for the pods
-3. `kubectl apply -f deployment/postgres.yaml` - Set up a Postgres database running PostGIS
-4. `kubectl apply -f deployment/udaconnect-api.yaml` - Set up the service and deployment for the API
-5. `kubectl apply -f deployment/udaconnect-app.yaml` - Set up the service and deployment for the web app
-6. `sh scripts/run_db_command.sh <POD_NAME>` - Seed your database against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`)
+1. `kubectl apply -f deployment/db-configmap.yaml` - Set up database environment variables for the pods
+2. `kubectl apply -f deployment/kafka-configmap.yaml` - Set up queue environment variables for the pods
+3. `kubectl apply -f deployment/db-secret.yaml` - Set up secrets for the pods
+4. `kubectl apply -f deployment/postgres.yaml` - Set up a Postgres database running PostGIS
+5. `kubectl apply -f deployment/udaconnect-api.yaml` - Set up the service and deployment for the legacy API
+6. `kubectl apply -f deployment/udaconnect-persons-api.yaml` - Set up the service and deployment for the Persons API
+7. `kubectl apply -f deployment/udaconnect-connections-api.yaml` - Set up the service and deployment for the Connections API
+8. `kubectl apply -f deployment/udaconnect-app.yaml` - Set up the service and deployment for the web app
+9. `sh scripts/run_db_command.sh <POD_NAME>` - Seed your database against the `postgres` pod. (`kubectl get pods` will give you the `POD_NAME`)
+10. `kubectl apply -f deployment/zookeeper.yaml` - Set up a zookeeper service for running kafka on kubernetes cluster
+11. `kubectl apply -f deployment/kafka.yaml` - Set up a kafka brokre for running the microservices below that depends on it
+12. `kubectl apply -f deployment/udaconnect-location-service.yaml` - Set up the location service
+13. `kubectl apply -f deployment/udaconnect-location-ingester.yaml` - Set up the location ingester service
+14. Confirm that all the pods and services are in the running state before proceeding with your test
+    
+    ```
+    kubectl get pods
+
+    kubectl get svc
+    ```
+15. Insert sample locations via gRPC using the sample gRPC client
+    
+    ```
+    export LOCATION_INGESTER_POD=$(kubectl get pods --namespace default -l "app=udaconnect-location-ingester" -o jsonpath="{.items[0].metadata.name}")
+
+    kubectl exec -it $LOCATION_INGESTER_POD sh
+    ```
+    
+    Once you are inside the shell, execute the grpc client with the command below (*you can run this several times, as it randomly generates location data for various users*):
+
+    ```
+    python grpc_client.py
+    ```
+
+    > **N.B:** You can observe the progress of location ingestion by observing the logs of the `location-service` and `location-ingester` microservice using the commands belo:
+
+    ```
+    kubectl logs -f <location-service-pod-name>
+
+    kubectl logs -f <location-ingester-pod-name>
+    ```
 
 Manually applying each of the individual `yaml` files is cumbersome but going through each step provides some context on the content of the starter project. In practice, we would have reduced the number of steps by running the command against a directory to apply of the contents: `kubectl apply -f deployment/`.
 
