@@ -6,7 +6,7 @@ from kafka import KafkaProducer
 from typing import Dict
 
 TOPIC_NAME = os.environ["TOPIC_NAME"]
-KAFKA_SERVER = os.environ["KAFKA_SERVER"]
+KAFKA_SERVER = "kafka.default.svc.cluster.local"
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -25,3 +25,10 @@ def publish_location(location_data):
     producer.flush()
 
     logger.info(f"Published location data {location_data} to kafka successfully.")
+
+
+
+
+
+
+

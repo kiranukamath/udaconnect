@@ -1,20 +1,16 @@
 from datetime import datetime
 
-from app.udaconnect.models import Connection, Location, Person
-from app.udaconnect.schemas import (
-    ConnectionSchema,
-    LocationSchema,
-    PersonSchema,
-)
-from app.udaconnect.services import ConnectionService, LocationService, PersonService
+from app.udaconnect.schemas import ConnectionSchema
+from app.udaconnect.services import ConnectionService
 from flask import request
-from flask_accepts import accepts, responds
+from flask_accepts import responds
 from flask_restx import Namespace, Resource
-from typing import Optional, List
+from typing import Optional
 
 DATE_FORMAT = "%Y-%m-%d"
 
 api = Namespace("UdaConnect", description="Connections via geolocation.")  # noqa
+
 
 @api.route("/persons/<person_id>/connection")
 @api.param("start_date", "Lower bound of date range", _in="query")

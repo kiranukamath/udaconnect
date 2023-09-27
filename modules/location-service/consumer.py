@@ -4,7 +4,7 @@ from kafka import KafkaConsumer
 from utils import save_location
 
 TOPIC_NAME = os.environ["TOPIC_NAME"]
-KAFKA_SERVER = os.environ["KAFKA_SERVER"]
+KAFKA_SERVER = "kafka.default.svc.cluster.local"
 
 # Create the kafka consumer
 consumer = KafkaConsumer(TOPIC_NAME, bootstrap_servers=[KAFKA_SERVER])
